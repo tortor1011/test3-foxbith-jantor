@@ -35,6 +35,7 @@ const FormQuestion = () => {
     
 
       <Paper sx={{ p: 2, mb: 2 }}>
+        <Typography variant="h6" gutterBottom style={{fontWeight:600}}>Questionnaire Detail</Typography>
         <TextField fullWidth label="Name" required />
       </Paper>
 
