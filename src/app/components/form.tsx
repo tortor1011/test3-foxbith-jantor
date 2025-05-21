@@ -1,5 +1,5 @@
 "use client"
-import React from 'react';
+import React,{useState} from 'react';
 import {
   Box,
   Button,
@@ -13,65 +13,195 @@ import {
 import { Add, Delete, ContentCopy } from '@mui/icons-material';
 import fox from "../../../public/fox-face.png"
 import Image from "next/image"
+import * as valid from "yup"
+import { yupResolver } from '@hookform/resolvers/yup';
+import { useForm } from "react-hook-form";
 
 
-const handleSubmit = () => {
-    console.log("ggggg")
+interface Choice {
+  description: string;
+  isCorrect: boolean;
 }
 
+interface  Question {
+  question: string;
+  choices: Choice[];
+}
+  
+
 const FormQuestion = () => {
+
+ const [name, setName] = useState('');
+  const [questions, setQuestions] = useState<Question[]>([{
+    question: '',
+    choices: [
+      { description: '', isCorrect: true },
+      { description: '', isCorrect: false }
+    ]
+  }]);
+
+  const handleAddQuestion = () => {
+    setQuestions([
+      ...questions,
+      {
+        question: '',
+        choices: [
+          { description: '', isCorrect: true },
+          { description: '', isCorrect: false }
+        ]
+      }
+    ]);
+  };
+
+  const handleQuestionChange = (index: number, value: string) => {
+    const updatedQuestions = [...questions];
+    updatedQuestions[index].question = value;
+    setQuestions(updatedQuestions);
+  };
+
+  const handleChoiceChange = (qIndex: number, cIndex: number, value: string) => {
+    const updatedQuestions = [...questions];
+    updatedQuestions[qIndex].choices[cIndex].description = value;
+    setQuestions(updatedQuestions);
+  };
+
+  const handleAddChoice = (qIndex: number) => {
+    const updatedQuestions = [...questions];
+    updatedQuestions[qIndex].choices.push({ description: '', isCorrect: false });
+    setQuestions(updatedQuestions);
+  };
+
+  const handleSetCorrect = (qIndex: number, cIndex: number) => {
+    const updatedQuestions = [...questions];
+    updatedQuestions[qIndex].choices = updatedQuestions[qIndex].choices.map((choice, idx) => ({
+      ...choice,
+      isCorrect: idx === cIndex
+    }));
+    setQuestions(updatedQuestions);
+  };
+
+  const handleDeleteChoice = (qIndex: number, cIndex: number) => {
+    const updatedQuestions = [...questions];
+    updatedQuestions[qIndex].choices.splice(cIndex, 1);
+    setQuestions(updatedQuestions);
+  };
+
+  const handleDuplicateQuestion = (index: number) => {
+    const duplicated = { ...questions[index], choices: [...questions[index].choices.map(choice => ({ ...choice }))] };
+    setQuestions([...questions, duplicated]);
+  };
+
+  const handleDeleteQuestion = (index: number) => {
+    const updatedQuestions = questions.filter((_, idx) => idx !== index);
+    setQuestions(updatedQuestions);
+  };
+
+  const handleSubmit = () => {
+    console.log({ name, questions });
+  };
   return (
     <>
-    <Paper sx={{ p: 2, mb: 2, width: "100%" ,display:"flex"}}>
+    <Paper sx={{ p: 2, mb: 1, width: "100%" ,display:"flex"}}>
        <Image src={fox} alt="Fox face" style={{ width: 24, height: 24,marginRight:"8px", }} />
       <Typography variant="h6" gutterBottom style={{fontWeight:600}}>Foxbith Questionnaire</Typography>
       </Paper>
-      <Paper sx={{p:2,mb: 2, width: "100%" ,display:"flex",}}>
-        <Button variant="outlined">Outlined</Button>
-        <Button variant="contained" style={{marginTop:"-10px"}}>Contained</Button>
+      <Paper sx={{p:2,mb: 2, width: "100%" ,display:"flex",justifyContent:"flex-end",gap:2}}>
+        <Button variant="outlined" sx={{  borderColor: "#FF5C00",
+              fontFamily: "Prompt",
+              color: "#FF5C00"}}>Cancel</Button>
+        <Button
+            variant="contained"
+            color="warning"
+            sx={{
+              width: "180px",
+              height: "48px",
+              borderRadius: 2,
+              fontFamily: "Prompt",
+
+            }}
+          >
+            Save
+          </Button>
       </Paper>
 
-    <Container>
-    
+    <Container sx={{ mb: 5 }}>
+  <Paper sx={{ p: 2, mb: 2 }}>
+    <Typography variant="h6" gutterBottom style={{ fontWeight: 600 }}>Questionnaire Detail</Typography>
+    <TextField
+      name="formName"
+      fullWidth
+      label="Name"
+      required
+      value={name}
+      onChange={(e) => setName(e.target.value)}
+    />
+  </Paper>
 
-      <Paper sx={{ p: 2, mb: 2 }}>
-        <Typography variant="h6" gutterBottom style={{fontWeight:600}}>Questionnaire Detail</Typography>
-        <TextField fullWidth label="Name" required />
-      </Paper>
+  {questions.map((q, qIndex) => (
+    <Paper key={qIndex} sx={{ p: 2, mb: 2 }}>
+      <Typography variant="h6">Question {qIndex + 1}</Typography>
 
-      {[1, 2].map((num) => (
-        <Paper key={num} sx={{ p: 2, mb: 2 }}>
-          <Typography variant="h6">Question {num}</Typography>
-          <TextField fullWidth label="Question" required sx={{ my: 1 }} />
+      <TextField
+        fullWidth
+        label="Question"
+        required
+        sx={{ my: 1 }}
+        value={q.question}
+        onChange={(e) => handleQuestionChange(qIndex, e.target.value)}
+      />
 
-          <Box sx={{ display: 'flex', alignItems: 'center', mb: 1 }}>
-            <Radio checked />
-            <TextField label="Description" required fullWidth defaultValue="" />
-            <IconButton><Delete /></IconButton>
-          </Box>
-
-          <Box sx={{ display: 'flex', alignItems: 'center', mb: 1 }}>
-            <Radio />
-            <TextField label="Description" required fullWidth defaultValue="" />
-            <IconButton><Delete /></IconButton>
-          </Box>
-
-          <Button startIcon={<Add />}>Add Choice</Button>
-
-          <Box mt={1}>
-            <Button startIcon={<ContentCopy />}>Duplicate</Button>
-            <Button startIcon={<Delete />} color="error">Delete</Button>
-          </Box>
-        </Paper>
+      {q.choices.map((choice, cIndex) => (
+        <Box key={cIndex} sx={{ display: 'flex', alignItems: 'center', mb: 1 }}>
+          <Radio
+            checked={choice.isCorrect}
+            onChange={() => handleSetCorrect(qIndex, cIndex)}
+          />
+          <TextField
+            label={`Choice ${cIndex + 1}`}
+            required
+            fullWidth
+            value={choice.description}
+            onChange={(e) => handleChoiceChange(qIndex, cIndex, e.target.value)}
+          />
+          <IconButton onClick={() => handleDeleteChoice(qIndex, cIndex)} disabled={q.choices.length <= 2}>
+            <Delete />
+          </IconButton>
+        </Box>
       ))}
 
-      <Button fullWidth variant="outlined" startIcon={<Add />}>Add Question</Button>
+      <Button startIcon={<Add />} style={{ color: "#FF5C00" }} onClick={() => handleAddChoice(qIndex)}>
+        Add Choice
+      </Button>
 
-      <Box mt={2} display="flex" justifyContent="flex-end" gap={2}>
-        <Button variant="outlined">Cancel</Button>
-        <Button variant="contained" color="primary" onClick={handleSubmit}>Save</Button>
+      <Box mt={1}>
+        <Button startIcon={<ContentCopy />} style={{ color: "black" }} onClick={() => handleDuplicateQuestion(qIndex)}>
+          Duplicate
+        </Button>
+        <Button startIcon={<Delete />} style={{ color: "black" }} onClick={() => handleDeleteQuestion(qIndex)} disabled={questions.length <= 1}>
+          Delete
+        </Button>
       </Box>
-    </Container>
+    </Paper>
+  ))}
+
+  <Button
+    fullWidth
+    variant="outlined"
+    startIcon={<Add />}
+    onClick={handleAddQuestion}
+    sx={{
+      color: "#FF5C00",
+      borderColor: "#FF5C00",
+      '&:hover': {
+        borderColor: "#FF5C00",
+        backgroundColor: "rgba(255,92,0,0.04)"
+      }
+    }}
+  >
+    Add Question
+  </Button>
+</Container>
+
     </>
   );
 };
