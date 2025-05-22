@@ -134,8 +134,8 @@ const handleSetCorrect = (qIndex: number, cIndex: number) => {
           </Button>
       </Paper>
 
-    <Container sx={{ mb: 5 }}>
-  <Paper sx={{ p: 2, mb: 2 }}>
+    <Container maxWidth={false} disableGutters sx={{ mb: 5, width: "100vw !important", px: 2 }}>
+  <Paper sx={{ p: 2, mb: 0.1 }}>
     <Typography variant="h6" gutterBottom style={{ fontWeight: 600 }}>Questionnaire Detail</Typography>
     <TextField
       name="formName"
@@ -148,7 +148,7 @@ const handleSetCorrect = (qIndex: number, cIndex: number) => {
   </Paper>
 
   {questions.map((q, qIndex) => (
-    <Paper key={qIndex} sx={{ p: 2, mb: 2 }}>
+    <Paper key={qIndex} sx={{ p: 2, mb: 0.1 }}>
       <Typography variant="h6">Question {qIndex + 1}</Typography>
 
       <TextField
@@ -168,11 +168,12 @@ const handleSetCorrect = (qIndex: number, cIndex: number) => {
                     onChange={() => handleSetCorrect(qIndex, cIndex)}
                   />
                   <TextField
-                    label={`Choice ${cIndex + 1}`}
+                    label={`Description`}
                     required
                     fullWidth
                     value={choice.description}
                     onChange={(e) => handleChoiceChange(qIndex, cIndex, e.target.value)}
+                    style={{ borderColor: "black" }}
                   />
                   <IconButton onClick={() => handleDeleteChoice(qIndex, cIndex)} disabled={q.choices.length <= 2}>
                     <Delete />
@@ -180,7 +181,7 @@ const handleSetCorrect = (qIndex: number, cIndex: number) => {
                 </Box>
                 {/* แสดงข้อความด้านล่างตัวเลือกที่ถูกเลือกและถูกต้อง */}
                 {q.msgChoice && selectedChoices[qIndex] === cIndex && choice.isCorrect && (
-                  <Typography variant="body2" color="success.main" sx={{ ml: 5, mt: 0.5 }}>
+                  <Typography variant="body2" color="black" sx={{ ml: 5, mt: 0.5 }}>
                     {q.msgChoice}
                   </Typography>
                 )}
@@ -204,7 +205,7 @@ const handleSetCorrect = (qIndex: number, cIndex: number) => {
       </Box>
     </Paper>
   ))}
-
+<Paper sx={{p:3}}>
   <Button
     fullWidth
     variant="outlined"
@@ -221,6 +222,7 @@ const handleSetCorrect = (qIndex: number, cIndex: number) => {
   >
     Add Question
   </Button>
+</Paper>
 </Container>
 
     </>
