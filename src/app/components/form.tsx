@@ -21,24 +21,28 @@ import { useForm } from "react-hook-form";
 interface Choice {
   description: string;
   isCorrect: boolean;
+  
 }
 
 interface  Question {
   question: string;
   choices: Choice[];
+  msgChoice:string;
 }
   
 
 const FormQuestion = () => {
-
- const [name, setName] = useState('');
-  const [questions, setQuestions] = useState<Question[]>([{
-    question: '',
-    choices: [
-      { description: '', isCorrect: true },
-      { description: '', isCorrect: false }
-    ]
-  }]);
+const [name, setName] = useState('');
+const [questions, setQuestions] = useState<Question[]>([{
+  
+  question: '',
+  choices: [
+    { description: '', isCorrect: true },
+    { description: '', isCorrect: false }
+  ],
+  msgChoice: 'คุณเลือกคำตอบที่ถูกต้องแล้ว'
+}]);
+const [selectedChoices, setSelectedChoices] = useState<number[]>([ -1 ]);
 
   const handleAddQuestion = () => {
     setQuestions([
@@ -48,7 +52,8 @@ const FormQuestion = () => {
         choices: [
           { description: '', isCorrect: true },
           { description: '', isCorrect: false }
-        ]
+        ],
+        msgChoice: 'คุณเลือกคำตอบที่ถูกต้องแล้ว'
       }
     ]);
   };
@@ -71,14 +76,19 @@ const FormQuestion = () => {
     setQuestions(updatedQuestions);
   };
 
-  const handleSetCorrect = (qIndex: number, cIndex: number) => {
-    const updatedQuestions = [...questions];
-    updatedQuestions[qIndex].choices = updatedQuestions[qIndex].choices.map((choice, idx) => ({
-      ...choice,
-      isCorrect: idx === cIndex
-    }));
-    setQuestions(updatedQuestions);
-  };
+const handleSetCorrect = (qIndex: number, cIndex: number) => {
+  const updatedQuestions = [...questions];
+  updatedQuestions[qIndex].choices = updatedQuestions[qIndex].choices.map((choice, idx) => ({
+    ...choice,
+    isCorrect: idx === cIndex,
+  }));
+  updatedQuestions[qIndex].msgChoice = 'This answer is correct'; // เปลี่ยนข้อความเป็นภาษาอังกฤษตามที่ต้องการ
+  setQuestions(updatedQuestions);
+  
+  const updatedSelections = [...selectedChoices];
+  updatedSelections[qIndex] = cIndex;
+  setSelectedChoices(updatedSelections);
+};
 
   const handleDeleteChoice = (qIndex: number, cIndex: number) => {
     const updatedQuestions = [...questions];
@@ -150,28 +160,39 @@ const FormQuestion = () => {
         onChange={(e) => handleQuestionChange(qIndex, e.target.value)}
       />
 
-      {q.choices.map((choice, cIndex) => (
-        <Box key={cIndex} sx={{ display: 'flex', alignItems: 'center', mb: 1 }}>
-          <Radio
-            checked={choice.isCorrect}
-            onChange={() => handleSetCorrect(qIndex, cIndex)}
-          />
-          <TextField
-            label={`Choice ${cIndex + 1}`}
-            required
-            fullWidth
-            value={choice.description}
-            onChange={(e) => handleChoiceChange(qIndex, cIndex, e.target.value)}
-          />
-          <IconButton onClick={() => handleDeleteChoice(qIndex, cIndex)} disabled={q.choices.length <= 2}>
-            <Delete />
-          </IconButton>
-        </Box>
-      ))}
+    {q.choices.map((choice, cIndex) => (
+      <Box key={cIndex} sx={{ mb: 1 }}>
+                <Box sx={{ display: 'flex', alignItems: 'center' }}>
+                  <Radio
+                    checked={selectedChoices[qIndex] === cIndex}
+                    onChange={() => handleSetCorrect(qIndex, cIndex)}
+                  />
+                  <TextField
+                    label={`Choice ${cIndex + 1}`}
+                    required
+                    fullWidth
+                    value={choice.description}
+                    onChange={(e) => handleChoiceChange(qIndex, cIndex, e.target.value)}
+                  />
+                  <IconButton onClick={() => handleDeleteChoice(qIndex, cIndex)} disabled={q.choices.length <= 2}>
+                    <Delete />
+                  </IconButton>
+                </Box>
+                {/* แสดงข้อความด้านล่างตัวเลือกที่ถูกเลือกและถูกต้อง */}
+                {q.msgChoice && selectedChoices[qIndex] === cIndex && choice.isCorrect && (
+                  <Typography variant="body2" color="success.main" sx={{ ml: 5, mt: 0.5 }}>
+                    {q.msgChoice}
+                  </Typography>
+                )}
+              </Box>
+    ))}
+    {/* แสดงข้อความเฉพาะเมื่อตัวเลือกที่เลือกเป็นคำตอบที่ถูกต้อง */}
+ 
 
       <Button startIcon={<Add />} style={{ color: "#FF5C00" }} onClick={() => handleAddChoice(qIndex)}>
         Add Choice
       </Button>
+      
 
       <Box mt={1}>
         <Button startIcon={<ContentCopy />} style={{ color: "black" }} onClick={() => handleDuplicateQuestion(qIndex)}>
