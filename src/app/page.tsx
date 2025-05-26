@@ -9,7 +9,7 @@ import Re from "./components/Refactor"
 export default function Home() {
   return (
     <div >
-      <FormQuestion />
+      <Re />
 
     </div>
   );
