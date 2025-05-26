@@ -291,7 +291,6 @@ const handleSetCorrect = (cIndex: number, qIndex: number) => {
           </IconButton>
         </Box>
       ))}
-<Typography variant="body2" color="success.main" sx={{ mt: 1, fontFamily: "Prompt" }}>{msgChoice}</Typography>
       <Button
         startIcon={<Add />}
         style={{ color: "#FF5C00", fontFamily: "Prompt" }}
