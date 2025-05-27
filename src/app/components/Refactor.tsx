@@ -34,7 +34,7 @@ interface FormData {
   questions: Question[];
 }
 
-// Yup validation schema
+
 const schema = yup.object().shape({
   name: yup.string().required("Questionnaire name is required"),
   questions: yup
@@ -184,7 +184,7 @@ const FormQuestion = () => {
   );
 };
 
-// Separate component for each question to manage choices with useFieldArray
+
 interface QuestionFieldProps {
   qIndex: number;
   control: any;
@@ -268,10 +268,11 @@ const handleSetCorrect = (cIndex: number, qIndex: number) => {
             name={`questions.${qIndex}.choices.${cIndex}.description`}
             control={control}
             render={({ field }) => {
-              // Always reserve space for helperText to prevent UI shift
+             
               const errorMsg = errors.questions?.[qIndex]?.choices?.[cIndex]?.description?.message;
               const correctMsg = getValues(`questions.${qIndex}.choices.${cIndex}.isCorrect`) ? "This answer is correct" : "";
-              const helperText = errorMsg || correctMsg || " "; // Always at least one space
+              const helperText = errorMsg || correctMsg || " "; 
+            
               return (
           <TextField
             {...field}
