@@ -214,11 +214,10 @@ const QuestionField: React.FC<QuestionFieldProps> = ({
 const [msgChoice, setMsgChoice] = React.useState<string>("");
 
 const handleSetCorrect = (cIndex: number, qIndex: number) => {
-  // รีเซ็ต isCorrect ของทุกตัวเลือกในคำถามนี้
-  getValues(`questions.${qIndex}.choices`).forEach((_: any, index: number) => {
-    setValue(`questions.${qIndex}.choices.${index}.isCorrect`, index === cIndex);
+  const choices = getValues(`questions.${qIndex}.choices`);
+  choices.forEach((_: any, index: number) => {
+    setValue(`questions.${qIndex}.choices.${index}.isCorrect`, index === cIndex, { shouldValidate: true, shouldDirty: true });
   });
-  setMsgChoice("This answer is correct");
 };
 
   const handleDuplicateQuestion = () => {
@@ -259,31 +258,35 @@ const handleSetCorrect = (cIndex: number, qIndex: number) => {
             name={`questions.${qIndex}.choices.${cIndex}.isCorrect`}
             control={control}
             render={({ field }) => (
-              <Radio
-                    checked={field.value}
-                    onChange={() => handleSetCorrect(cIndex, qIndex)}
-                    />
+              <Radio sx={{top:-10}}
+          checked={field.value}
+          onChange={() => handleSetCorrect(cIndex, qIndex)}
+              />
             )}
           />
           <Controller
             name={`questions.${qIndex}.choices.${cIndex}.description`}
             control={control}
-            render={({ field }) => (
-              <TextField
-                    {...field}
-                    label={`Choice ${cIndex + 1}`}
-                    required
-                    fullWidth
-                    error={!!errors.questions?.[qIndex]?.choices?.[cIndex]?.description}
-                    helperText={
-                        errors.questions?.[qIndex]?.choices?.[cIndex]?.description?.message ||
-                        (field.value ? "This answer is correct" : "")
-                    }
-                    sx={{ fontFamily: "Prompt" }}
-                    />
-            )}
+            render={({ field }) => {
+              // Always reserve space for helperText to prevent UI shift
+              const errorMsg = errors.questions?.[qIndex]?.choices?.[cIndex]?.description?.message;
+              const correctMsg = getValues(`questions.${qIndex}.choices.${cIndex}.isCorrect`) ? "This answer is correct" : "";
+              const helperText = errorMsg || correctMsg || " "; // Always at least one space
+              return (
+          <TextField
+            {...field}
+            label={`Choice ${cIndex + 1}`}
+            required
+            fullWidth
+            error={!!errorMsg}
+            helperText={helperText}
+            sx={{ fontFamily: "Prompt" }}
+            FormHelperTextProps={{ sx: { minHeight: "1.5em" } }}
           />
-          <IconButton
+              );
+            }}
+          />
+          <IconButton sx={{top:-10}}
             onClick={() => removeChoice(cIndex)}
             disabled={choices.length <= 2}
           >
