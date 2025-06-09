@@ -211,8 +211,6 @@ const QuestionField: React.FC<QuestionFieldProps> = ({
     name: `questions.${qIndex}.choices`,
   });
 
-const [msgChoice, setMsgChoice] = React.useState<string>("");
-
 const handleSetCorrect = (cIndex: number, qIndex: number) => {
   const choices = getValues(`questions.${qIndex}.choices`);
   choices.forEach((_: any, index: number) => {
