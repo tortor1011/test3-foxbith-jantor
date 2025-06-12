@@ -226,7 +226,8 @@ const handleSetCorrect = (cIndex: number, qIndex: number) => {
       choices: question.choices.map((choice: Choice) => ({ ...choice })),
     });
   };
-// แก้ตรงนี้
+// แก้ตรงนี้โดยใช้ Logic  
+// เช็คค่าที่เป็น True ถ้าค่าที่เป็น True ถูกลบออก ให้รีบเซ็ทค่าลำดับที่ 0 มาเป็น default ก่อนลำดับแรก
   const handleRemoveChoice = (cIndex: number) => {
     const isCurrentChecked = getValues(`questions.${qIndex}.choices.${cIndex}.isCorrect`);
     
