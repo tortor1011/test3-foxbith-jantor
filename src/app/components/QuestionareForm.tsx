@@ -210,6 +210,7 @@ const QuestionField: React.FC<QuestionFieldProps> = ({
     control,
     name: `questions.${qIndex}.choices`,
   });
+  
 
 const handleSetCorrect = (cIndex: number, qIndex: number) => {
   const choices = getValues(`questions.${qIndex}.choices`);
@@ -224,6 +225,19 @@ const handleSetCorrect = (cIndex: number, qIndex: number) => {
       question: question.question,
       choices: question.choices.map((choice: Choice) => ({ ...choice })),
     });
+  };
+// แก้ตรงนี้
+  const handleRemoveChoice = (cIndex: number) => {
+    const isCurrentChecked = getValues(`questions.${qIndex}.choices.${cIndex}.isCorrect`);
+    
+    removeChoice(cIndex);
+    
+    if (isCurrentChecked) {
+      setValue(`questions.${qIndex}.choices.0.isCorrect`, true, {
+        shouldValidate: true,
+        shouldDirty: true
+      });
+    }
   };
 
   return (
@@ -286,7 +300,7 @@ const handleSetCorrect = (cIndex: number, qIndex: number) => {
             }}
           />
           <IconButton sx={{top:-10}}
-            onClick={() => removeChoice(cIndex)}
+            onClick={() => handleRemoveChoice(cIndex)}
             disabled={choices.length <= 2}
           >
             <Delete />
